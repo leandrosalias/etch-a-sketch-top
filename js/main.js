@@ -3,6 +3,7 @@ const sizeBtn = document.querySelector("#size-btn");
 const clearBtn = document.querySelector("#clear-btn");
 const blackBtn = document.querySelector("#color-black-btn");
 const rainbowBtn = document.querySelector("#rainbow-btn");
+const shadingBtn = document.querySelector('#shading-btn');
 
 let currentMode = "black";
 let currentSize = 16;
@@ -32,13 +33,23 @@ function createGrid(size) {
 
 // Paints grid cells considering the active mode
 function paintSquare(e) {
+    const square = e.target;
     if (currentMode === "rainbow") {
         const r = Math.floor(Math.random() * 256);
         const g = Math.floor(Math.random() * 256);
         const b = Math.floor(Math.random() * 256);
-        e.target.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-    } else {
+        square.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        square.style.opacity = 1;
+    } else if (currentMode === "shading") {
+        const currentOpacity = parseFloat(square.style.opacity) || 0;
+        square.style.backgroundColor = "black";
+        if (currentOpacity < 1) {
+            square.style.opacity = (currentOpacity + 0.1).toFixed(1); // toFixed prevents floating point errors
+        }
+    }
+    else {
         e.target.style.backgroundColor = "#111827";
+        square.style.opacity = 1;
     }
 }
 
@@ -62,14 +73,20 @@ function promptNewSize() {
 // Clears the grid mantaing the actual size
 function clearGrid() {
     const squares = document.querySelectorAll(".square");
-    squares.forEach((sq) => (sq.style.backgroundColor = "#ffffff"));
+    squares.forEach((sq) => {
+        sq.style.backgroundColor = "";
+        sq.style.opacity = "";
+    });
 }
 
 // Event Listeners
 sizeBtn.addEventListener("click", promptNewSize);
 clearBtn.addEventListener("click", clearGrid);
+
 blackBtn.addEventListener("click", () => (currentMode = "black"));
 rainbowBtn.addEventListener("click", () => (currentMode = "rainbow"));
+shadingBtn.addEventListener('click', () => (currentMode = "shading"));
 
 // Initialization: creates the base grid of 16x16
 createGrid(currentSize);
+setActiveMode("black");
